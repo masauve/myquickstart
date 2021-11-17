@@ -1,66 +1,92 @@
-schemaVersion: 2.0.0
+schemaVersion: 2.1.0
 metadata:
-  name: java-quarkus
-  version: 1.1.0
   attributes:
-    alpha.build-context: .
-    alpha.build-dockerfile: src/main/docker/Dockerfile.jvm.staged
-  website: https://quarkus.io
+    dw.metadata.annotations:
+      che.eclipse.org/devfile-source: |
+        sample:
+          registry: 'https://codeready-openshift-workspaces.apps.ocp.myocp.net/devfile-registry'
+          displayName: Java Quarkus
+          location: 'https://github.com/crw-samples/quarkus-quickstarts/tree/devfilev2'
+  name: quarkus-quickstart-fjki
 projects:
-  - name: myquickstart
+  - name: quarkus-quickstarts
     git:
       remotes:
-        origin: "https://github.com/masauve/myquickstart.git"
+        origin: 'https://github.com/masauve/myquickstart.git'
       checkoutFrom:
-        revision: main
+        revision: devfilev2
 components:
-  - name: buildguidance
-    attributes:
-      tool: console-import
-    container:
-      image: buildguidanceimage-placeholder
-      memoryLimit: 1024Mi
-      endpoints:
-        - name: http-8081
-          targetPort: 8081
   - name: tools
     container:
-      image: quay.io/eclipse/che-quarkus:nightly
-      memoryLimit: 1512Mi
-      mountSources: true
+      image: registry.access.redhat.com/ubi8/openjdk-11
+      command:
+        - tail
+      args:
+        - '-f'
+        - /dev/null
+      env:
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
+        - exposure: public
+          name: hello-greeting-endpoint
+          protocol: http
+          targetPort: 8080
+          path: /hello/greeting/che-user
       volumeMounts:
         - name: m2
-          path: /home/user/.m2
-      endpoints:
-        - name: '8080-http'
-          targetPort: 8080
+          path: /home/jboss/.m2
+      memoryLimit: 4G
+      mountSources: true
+  - name: ubi-minimal
+    container:
+      image: registry.access.redhat.com/ubi8/ubi-minimal
+      command:
+        - tail
+      args:
+        - '-f'
+        - /dev/null
+      memoryLimit: 64M
+      mountSources: true
+  - name: gradle
+    volume:
+      size: 1G
   - name: m2
     volume:
-      size: 3Gi
+      size: 1G
 commands:
-  - id: init-compile
+  - id: package
     exec:
       component: tools
-      commandLine: "mvn -Dmaven.repo.local=/home/user/.m2/repository compile"
-      workingDir: $PROJECTS_ROOT
-  - id: dev-run
+      workingDir: '${PROJECTS_ROOT}/quarkus-quickstarts/getting-started'
+      commandLine: ./mvnw package
+      group:
+        kind: build
+        isDefault: true
+  - id: packagenative
     exec:
+      label: Package Native
       component: tools
-      commandLine: "mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
-      hotReloadCapable: true
+      workingDir: '${PROJECTS_ROOT}/quarkus-quickstarts/getting-started'
+      commandLine: ./mvnw package -Dnative -Dmaven.test.skip -Dquarkus.native.native-image-xmx=2G
+      group:
+        kind: build
+  - id: startdev
+    exec:
+      label: Start Development mode (Hot reload + debug)
+      component: tools
+      workingDir: '${PROJECTS_ROOT}/quarkus-quickstarts/getting-started'
+      commandLine: './mvnw compile quarkus:dev'
       group:
         kind: run
         isDefault: true
-      workingDir: $PROJECTS_ROOT
-  - id: dev-debug
+  - id: startnative
     exec:
-      component: tools
-      commandLine: "mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddebug=${DEBUG_PORT}"
-      hotReloadCapable: true
-      group:
-        kind: debug
-        isDefault: true
-      workingDir: $PROJECTS_ROOT
-events:
-  postStart:
-    - init-compile
+      label: Start Native
+      component: ubi-minimal
+      workingDir: '${PROJECTS_ROOT}/quarkus-quickstarts/getting-started/target'
+      commandLine: ./getting-started-1.0.0-SNAPSHOT-runner
