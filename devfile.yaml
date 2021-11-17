@@ -5,6 +5,7 @@ metadata:
   website: https://quarkus.io
 starterProjects:
   - name: "myquickstart"
+    git: https://github.com/masauve/myquickstart
     description: "Quickstart Quarkus"
 components:
   - name: tools
