@@ -1,6 +1,8 @@
 schemaVersion: 2.1.0
 metadata:
   attributes:
+    alpha.build-context: .
+    alpha.build-dockerfile: src/main/docker/Dockerfile.jvm.staged
     dw.metadata.annotations:
       che.eclipse.org/devfile-source: |
         sample:
