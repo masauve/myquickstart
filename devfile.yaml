@@ -16,6 +16,15 @@ projects:
       checkoutFrom:
         revision: devfilev2
 components:
+  - name: buildguidance
+    attributes:
+      tool: console-import
+    container:
+      image: buildguidanceimage-placeholder
+      memoryLimit: 1024Mi
+      endpoints:
+        - name: http-8081
+          targetPort: 8081
   - name: tools
     container:
       image: registry.access.redhat.com/ubi8/openjdk-11
