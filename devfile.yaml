@@ -6,7 +6,7 @@ metadata:
 projects:
   - name: php-di
     source:
-      git: zip
+      type: git
       location: 'https://devfile-registry-openshift-workspaces.apps.ocp.myocp.net/resources/php-di-php-di-master.zip'
 components:
   - name: tools
