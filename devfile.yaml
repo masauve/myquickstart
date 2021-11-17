@@ -11,6 +11,15 @@ projects:
       checkoutFrom:
         revision: main
 components:
+  - name: buildguidance
+    attributes:
+      tool: console-import
+    container:
+      image: buildguidanceimage-placeholder
+      memoryLimit: 1024Mi
+      endpoints:
+        - name: http-8081
+          targetPort: 8081
   - name: tools
     container:
       image: quay.io/eclipse/che-quarkus:nightly
