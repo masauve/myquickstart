@@ -8,10 +8,6 @@ projects:
     source:
       git: zip
       location: 'https://devfile-registry-openshift-workspaces.apps.ocp.myocp.net/resources/php-di-php-di-master.zip'
-starterProjects:
-  - name: "myquickstart"
-    git: git@github.com:masauve/myquickstart.git
-    description: "Quickstart Quarkus"
 components:
   - name: tools
     container:
