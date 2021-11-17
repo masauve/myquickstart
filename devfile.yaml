@@ -4,10 +4,12 @@ metadata:
   version: 1.1.0
   website: https://quarkus.io
 projects:
-  - name: php-di
-    source:
-      type: git
-      location: 'https://devfile-registry-openshift-workspaces.apps.ocp.myocp.net/resources/php-di-php-di-master.zip'
+  - name: myquickstart
+    git:
+      remotes:
+        origin: "https://github.com/masauve/myquickstart.git"
+      checkoutFrom:
+        revision: main
 components:
   - name: tools
     container:
